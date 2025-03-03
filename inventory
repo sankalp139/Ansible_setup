@@ -1,1 +1,4 @@
-192.168.1.213
+[my_vms]
+MasterNode ansible_host=192.168.1.213 ansible_user=sankr
+ClientNode1 ansible_host=192.168.1.214 ansible_user=sankr
+ClientNode2 ansible_host=192.168.1.215 ansible_user=sankr
