@@ -4,18 +4,18 @@
   become: true
   pre_tasks:
   
-  - name: install updates (CentOS)
+  - name: updates cache (CentOS)
     tags: always
     dnf:
-      update_only: yes
       update_cache: yes
+    changed_when: false  
     when: ansible_distribution == "CentOS"
      
-  - name: install updates (Ubuntu)
+  - name: updates cache (Ubuntu)
     tags: always
     apt:
-      upgrade: dist
       update_cache: yes
+    changed_when: false   
     when: ansible_distribution == "Ubuntu"
    
    
@@ -32,7 +32,7 @@
         - libapache2-mod-php
       state: latest
     when: ansible_distribution == "Ubuntu"
-      
+    
   - name: install the web package for centOS servers
     tags: apache,centos,httpd
     dnf:
@@ -41,6 +41,16 @@
         - php
       state: latest
     when: ansible_distribution == "CentOS"
+        
+      
+  - name: copy the default html file
+    tags: apache,centos,httpd
+    copy:
+      src: default.html
+      dest: /var/www/html/index.html
+      owner: root
+      group: root
+      mode: 0644
     
 
 
@@ -72,21 +82,31 @@
     package:
        name: samba
        state: latest
-      
+       
+       
 - hosts: my_vms
   become: true
   tasks:
   
-  - name: install python
+  - name: add ssh key for simone
+    tags: always
+    authorized_key:
+       user: simone
+       key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDEuYL/uqG6FGRg5HcRIdGCO9UUwNFjICvHktGm0+4hEp78rn0JXxUZ5cB6nwn9u5bRG5JaCsRW/s4ESL3oGMh7nLBxJdObzmDTa2QlRKlUdrwSrdGfow0+An35VHIbRN8WZOyhOCnf6j8thB+A1NCUZTrQATNw4JeOjSUAvTjAnU3wbffNMTSn1ziLjqgYI+ODz/hBoaB/o/F3Crt5ibSqz3vgQc60qfPwfUoMxXTXMOc5x4KQGk3wMyzooW95mJz8SVOqmnxbWpbw0P0dOO+7im7ElhLSg36+4mbbxkUy+X7f8lKVmTbCRYDfwZ7DpI1NlOwpoAkeXbC8JZZRs7zstoF66ye8UoNmb8UZHrVlzDPl10xYgDjbQ5MN5/DGWWXsx5ySOIlbbiFVN/SP23i2q1kpemJxAxC7Ue+aCpBOgI2sC4fKYnnPJ1XJbf2P4ayWpDBEzWHw6ewOkJWSRPLxaUiMdM8wSdevJcCVQiFOTdsKRuTCFnpx/6TZoNmQWVlHJdnn2xieXzKPwSUCGI3wXS0JvSjeA9nYieXyWrFSWTmIMmq9amOKvBLFjAJ5ifVTfl7XP+N4lsWtl2TJ1sDY0IBXS3jseqQxL6hueaEVNTqWWAjFwnLeUPECBIUTn0o08CrRp7VKsLl8yJECng2UShjr8aElaAURWGxKnFYpcw== sankalp"
+  
+            
+  - name: install unzip
     package:
-       name: python3
-       state: present 
+       name: unzip
+ 
+  - name: install terraform
+    unarchive:
+       src: https://releases.hashicorp.com/terraform/0.12.28/terraform_0.12.28_linux_amd64.zip
+       dest: /usr/local/bin
+       remote_src: yes
+       mode: 0755
+       owner: root
+       group: root     
+            
+      
 
-  - name: verify python installation
-    command: python3 --version
-    register: python_version
-       
-  - name: display python version
-    debug:
-       msg: "Python version installed: {{ python_version.stdout }}"                   
-    
